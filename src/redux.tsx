@@ -26,7 +26,17 @@ const store: Store<AppState> = {
   }
 }
 
-const dispatch = store.dispatch
+let dispatch = store.dispatch
+
+const prevDispatch = dispatch
+
+dispatch = (action: Function | Object) => {
+  if (typeof action === 'function') {
+    action(dispatch)
+  } else {
+    prevDispatch(action)
+  }
+}
 
 export function createStore<State>(_reducer: Function, initState: State) {
   // @ts-ignore
@@ -65,7 +75,7 @@ export const connect = (selector?: Function, mapDispatchToProps?: Function) => (
       })
     }, [selector])
 
-    return <Component {...props} {...data} {...dispatcher}/>
+    return <Component {...props} {...data} {...dispatcher} dispatch={dispatch}/>
   }
 }
 

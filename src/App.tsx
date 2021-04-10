@@ -32,7 +32,7 @@ const User = connectToUser(({user}: {user: User}) => {
   return <div>User: {user.name}</div>
 })
 
-const UserModify = connectToUser(({user, updateUser}: {user: User; updateUser: Function}) => {
+const UserModify = connectToUser(({user, updateUser, dispatch}: {user: User; updateUser: Function, dispatch: Function}) => {
   console.log('UserModify' + Math.random());
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -41,12 +41,25 @@ const UserModify = connectToUser(({user, updateUser}: {user: User; updateUser: F
     })
   }
 
+  const fetchUser = (dispatch: Function) => new Promise<void>(resolve => {
+    setTimeout(() => {
+      console.log('hi')
+      dispatch({type: 'updateUser', payload: { name: 'new name' }})
+      resolve()
+    }, 1500)
+  })
+
+  const onClick = async () => {
+    dispatch(fetchUser)
+  }
+
   return (
     <div>
       <label>
         用户名
         <input type="text" value={user.name} onChange={onChange}/>
       </label>
+      <button onClick={onClick}>Fetch User</button>
     </div>
   )
 })
