@@ -1,5 +1,12 @@
 /// <reference types="react-scripts" />
 
+interface Store<State> {
+  state: State,
+  setState: (newState: State) => void
+  listeners: Function[]
+  subscribe: Function
+}
+
 interface Action<T={}> {
   type: string;
   payload: T;
@@ -15,7 +22,7 @@ interface AppState {
 }
 
 interface ContextValue {
-  appState: AppState,
-  setAppState: Function
+  state: AppState,
+  setState: Function
 }
 

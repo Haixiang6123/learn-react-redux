@@ -1,16 +1,24 @@
-import React, {ChangeEventHandler, Component, createContext, useContext, useState} from 'react';
+import React, {ChangeEventHandler, Component, createContext, useContext, useEffect, useState} from 'react';
 
-const defaultAppState: AppState = {
-  user: {
-    name: 'Jack',
-    age: 18
+const store: Store<{user: User}> = {
+  state: {
+    user: {name: 'Jack', age: 18}
+  },
+  setState(newState: any) {
+    store.state = newState
+    store.listeners.map(fn => fn(store.state))
+  },
+  listeners: [],
+  subscribe(fn: Function) {
+    store.listeners.push(fn)
+    return () => {
+      const index = store.listeners.indexOf(fn)
+      store.listeners.splice(index, 1)
+    }
   }
 }
 
-const AppContext = createContext<ContextValue>({
-  appState: defaultAppState,
-  setAppState: () => {}
-})
+const AppContext = createContext<ContextValue>(store)
 
 const reducer = (state: AppState, {type, payload}: Action<Partial<User>>) => {
   if (type === 'updateUser') {
@@ -28,22 +36,32 @@ const reducer = (state: AppState, {type, payload}: Action<Partial<User>>) => {
 
 const connect = (Component: any) => {
   return (props: any) => {
-    const {appState, setAppState} = useContext(AppContext)
+    const {state, setState} = useContext(AppContext)
+
+    const [, update] = useState({})
+
+    useEffect(() => {
+      store.subscribe(() => {
+        update({})
+      })
+    }, [])
 
     const dispatch = (action: Action) => {
-      setAppState(reducer(appState, action))
+      setState(reducer(state, action))
     }
 
-    return <Component {...props} dispatch={dispatch} state={appState}/>
+    return <Component {...props} dispatch={dispatch} state={state}/>
   }
 }
 
-const User = () => {
-  const contextValue = useContext(AppContext)
-  return <div>User: {contextValue.appState.user.name}</div>
-}
+const User = connect(({state}: {state: AppState}) => {
+  console.log('User执行了' + Math.random());
+  return <div>User: {state.user.name}</div>
+})
 
 const UserModify = connect(({dispatch, state}: {dispatch: Function; state: AppState}) => {
+  console.log('UserModify' + Math.random());
+
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     dispatch({
       type: 'updateUser',
@@ -63,17 +81,22 @@ const UserModify = connect(({dispatch, state}: {dispatch: Function; state: AppSt
   )
 })
 
-const FirstSon = () => <section>大儿子 <User/></section>
-const SecondSon = () => <section>二儿子<UserModify/></section>
-const ThirdSon = () => <section>三儿子</section>
+const FirstSon = () => {
+  console.log('大儿子执行了' + Math.random());
+  return <section>大儿子 <User/></section>
+}
+const SecondSon = () => {
+  console.log('二儿子执行了' + Math.random());
+  return<section>二儿子<UserModify/></section>
+}
+const ThirdSon = () => {
+  console.log('三儿子执行了' + Math.random());
+  return <section>三儿子</section>
+}
 
 const App = () => {
-  const [appState, setAppState] = useState<AppState>(defaultAppState)
-
-  const contextValue = {appState, setAppState}
-
   return (
-    <AppContext.Provider value={contextValue}>
+    <AppContext.Provider value={store}>
       <FirstSon/>
       <SecondSon/>
       <ThirdSon/>
