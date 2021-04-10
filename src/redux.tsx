@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useState} from 'react'
+import React, {createContext, FC, useContext, useEffect, useState} from 'react'
 
 const store: Store<AppState> = {
   state: undefined,
@@ -64,4 +64,12 @@ export const connect = (selector?: Function, mapDispatchToProps?: Function) => (
 
     return <Component {...props} {...data} {...dispatcher}/>
   }
+}
+
+export const Provider:FC<{store: Store<AppState>}> = ({store, children}) => {
+  return (
+    <AppContext.Provider value={store}>
+      {children}
+    </AppContext.Provider>
+  )
 }

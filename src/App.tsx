@@ -1,5 +1,5 @@
 import React, {ChangeEventHandler} from 'react';
-import {connect,  AppContext, createStore} from "./redux";
+import {connect, createStore, Provider} from "./redux";
 import connectToUser from "./connectors/connectToUser";
 
 const initState: AppState = {
@@ -73,11 +73,11 @@ const ThirdSon = connect((state: AppState) => {
 
 const App = () => {
   return (
-    <AppContext.Provider value={store}>
+    <Provider store={store}>
       <FirstSon/>
       <SecondSon/>
       <ThirdSon/>
-    </AppContext.Provider>
+    </Provider>
   );
 }
 
