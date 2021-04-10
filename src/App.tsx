@@ -8,15 +8,16 @@ const User = connect(selector)(({user}: {user: User}) => {
   return <div>User: {user.name}</div>
 })
 
-const UserModify = connect()(({dispatch, state}: {dispatch: Function; state: AppState}) => {
+const UserModify = connect(undefined, (dispatch: Function) => {
+  return {
+    updateUser: (user: Partial<User>) => dispatch({type: 'updateUser', payload: user})
+  }
+})(({state, updateUser}: {state: AppState; updateUser: Function}) => {
   console.log('UserModify' + Math.random());
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    dispatch({
-      type: 'updateUser',
-      payload: {
-        name: e.target.value
-      }
+    updateUser({
+      name: e.target.value
     })
   }
 

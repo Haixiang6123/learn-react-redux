@@ -45,13 +45,19 @@ const changed = (oldData: Object, newData: Object) => {
   return false
 }
 
-export const connect = (selector?: Function) => (Component: any) => {
+export const connect = (selector?: Function, mapDispatchToProps?: Function) => (Component: any) => {
   return (props: any) => {
     const {state, setState} = useContext(AppContext)
 
     const [, update] = useState({})
 
+    const dispatch = (action: Action) => {
+      setState(reducer(state, action))
+    }
+
     const data = selector ? selector(state) : {state}
+
+    const dispatcher = mapDispatchToProps ? mapDispatchToProps(dispatch) : {dispatch}
 
     useEffect(() => {
       return store.subscribe(() => {
@@ -63,10 +69,6 @@ export const connect = (selector?: Function) => (Component: any) => {
       })
     }, [selector])
 
-    const dispatch = (action: Action) => {
-      setState(reducer(state, action))
-    }
-
-    return <Component {...props} {...data} dispatch={dispatch}/>
+    return <Component {...props} {...data} {...dispatcher}/>
   }
 }
