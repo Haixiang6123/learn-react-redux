@@ -1,4 +1,4 @@
-import React, {createContext, FC, useContext, useEffect, useState} from 'react'
+import React, {createContext, FC, useEffect, useState} from 'react'
 
 let state: AppState | undefined = undefined
 let reducer: Function | undefined
