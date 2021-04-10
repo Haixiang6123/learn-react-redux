@@ -1,4 +1,4 @@
-import React, {ChangeEventHandler, createContext, FC, useContext, useState} from 'react';
+import React, {ChangeEventHandler, Component, createContext, useContext, useState} from 'react';
 
 const defaultAppState: AppState = {
   user: {
@@ -26,14 +26,16 @@ const reducer = (state: AppState, {type, payload}: Action<Partial<User>>) => {
   }
 }
 
-const Wrapper = () => {
-  const {appState, setAppState} = useContext(AppContext)
+const connect = (Component: any) => {
+  return (props: any) => {
+    const {appState, setAppState} = useContext(AppContext)
 
-  const dispatch = (action: Action) => {
-    setAppState(reducer(appState, action))
+    const dispatch = (action: Action) => {
+      setAppState(reducer(appState, action))
+    }
+
+    return <Component {...props} dispatch={dispatch} state={appState}/>
   }
-
-  return <UserModify dispatch={dispatch} state={appState} />
 }
 
 const User = () => {
@@ -41,7 +43,7 @@ const User = () => {
   return <div>User: {contextValue.appState.user.name}</div>
 }
 
-const UserModify: FC<{dispatch: Function; state: AppState}> = ({dispatch, state}) => {
+const UserModify = connect(({dispatch, state}: {dispatch: Function; state: AppState}) => {
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     dispatch({
       type: 'updateUser',
@@ -59,10 +61,10 @@ const UserModify: FC<{dispatch: Function; state: AppState}> = ({dispatch, state}
       </label>
     </div>
   )
-}
+})
 
 const FirstSon = () => <section>大儿子 <User/></section>
-const SecondSon = () => <section>二儿子<Wrapper/></section>
+const SecondSon = () => <section>二儿子<UserModify/></section>
 const ThirdSon = () => <section>三儿子</section>
 
 const App = () => {
