@@ -1,8 +1,9 @@
 /// <reference types="react-scripts" />
 
 interface Store<State> {
-  state: State,
+  state: undefined | State,
   setState: (newState: State) => void
+  reducer: undefined | Function
   listeners: Function[]
   subscribe: Function
 }

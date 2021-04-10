@@ -1,13 +1,11 @@
 import React, {createContext, useContext, useEffect, useState} from 'react'
 
-export const store: Store<{user: User, group: Group}> = {
-  state: {
-    user: {name: 'Jack', age: 18},
-    group: {name: '前端组'},
-  },
+const store: Store<AppState> = {
+  state: undefined,
+  reducer: undefined,
   setState(newState: any) {
     store.state = newState
-    store.listeners.map(fn => fn(store.state))
+    store.listeners.map((fn: Function) => fn(store.state))
   },
   listeners: [],
   subscribe(fn: Function) {
@@ -19,21 +17,14 @@ export const store: Store<{user: User, group: Group}> = {
   }
 }
 
-export const AppContext = createContext<ContextValue>(store)
-
-export const reducer = (state: AppState, {type, payload}: Action<Partial<User>>) => {
-  if (type === 'updateUser') {
-    return {
-      ...state,
-      user: {
-        ...state.user,
-        ...payload,
-      }
-    }
-  } else {
-    return state
-  }
+export function createStore<State>(reducer: Function, initState: State) {
+  // @ts-ignore
+  store.state = initState
+  store.reducer = reducer
+  return store
 }
+
+export const AppContext = createContext(store)
 
 const changed = (oldData: Object, newData: Object) => {
   for (let key in oldData) {
@@ -52,7 +43,9 @@ export const connect = (selector?: Function, mapDispatchToProps?: Function) => (
     const [, update] = useState({})
 
     const dispatch = (action: Action) => {
-      setState(reducer(state, action))
+      if (store.reducer) {
+        setState(store.reducer(state, action))
+      }
     }
 
     const data = selector ? selector(state) : {state}

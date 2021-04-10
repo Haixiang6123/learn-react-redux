@@ -1,6 +1,31 @@
 import React, {ChangeEventHandler} from 'react';
-import {connect, store, AppContext} from "./redux";
+import {connect,  AppContext, createStore} from "./redux";
 import connectToUser from "./connectors/connectToUser";
+
+const initState: AppState = {
+  user: {
+    name: 'Jack',
+    age: 19
+  },
+  group: {
+    name: '前端组'
+  }
+}
+
+const reducer = (state=initState, {type, payload}: Action<Partial<User>>) => {
+  if (type === 'updateUser') {
+    return {
+      ...state,
+      user: {
+        ...state.user,
+        ...payload,
+      }
+    }
+  } else {
+    return state
+  }
+}
+const store = createStore<AppState>(reducer, initState)
 
 const User = connectToUser(({user}: {user: User}) => {
   console.log('User执行了' + Math.random());
