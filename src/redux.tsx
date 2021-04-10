@@ -1,11 +1,15 @@
 import React, {createContext, FC, useContext, useEffect, useState} from 'react'
 
+let state: AppState | undefined = undefined
+
 const store: Store<AppState> = {
-  state: undefined,
+  getState() {
+    return state
+  },
   reducer: undefined,
   setState(newState: any) {
-    store.state = newState
-    store.listeners.map((fn: Function) => fn(store.state))
+    state = newState
+    store.listeners.map((fn: Function) => fn(state))
   },
   listeners: [],
   subscribe(fn: Function) {
@@ -19,7 +23,7 @@ const store: Store<AppState> = {
 
 export function createStore<State>(reducer: Function, initState: State) {
   // @ts-ignore
-  store.state = initState
+  state = initState
   store.reducer = reducer
   return store
 }
@@ -38,7 +42,7 @@ const changed = (oldData: Object, newData: Object) => {
 
 export const connect = (selector?: Function, mapDispatchToProps?: Function) => (Component: any) => {
   return (props: any) => {
-    const {state, setState} = useContext(AppContext)
+    const {setState} = useContext(AppContext)
 
     const [, update] = useState({})
 
@@ -54,7 +58,7 @@ export const connect = (selector?: Function, mapDispatchToProps?: Function) => (
 
     useEffect(() => {
       return store.subscribe(() => {
-        const newData = selector ? selector(store.state) : {state: store.state}
+        const newData = selector ? selector(state) : {state}
         if (changed(data, newData)) {
           console.log('update')
           update({})
