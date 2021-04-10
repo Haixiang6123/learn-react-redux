@@ -1,30 +1,37 @@
 import React, {createContext, FC, useContext, useEffect, useState} from 'react'
 
 let state: AppState | undefined = undefined
+let reducer: Function | undefined
+let listeners: Function[] = []
+const setState = (newState: any) => {
+  state = newState
+  listeners.map((fn: Function) => fn(state))
+}
 
 const store: Store<AppState> = {
   getState() {
     return state
   },
-  reducer: undefined,
-  setState(newState: any) {
-    state = newState
-    store.listeners.map((fn: Function) => fn(state))
+  dispatch: (action: Action) => {
+    if (reducer) {
+      setState(reducer(state, action))
+    }
   },
-  listeners: [],
   subscribe(fn: Function) {
-    store.listeners.push(fn)
+    listeners.push(fn)
     return () => {
-      const index = store.listeners.indexOf(fn)
-      store.listeners.splice(index, 1)
+      const index = listeners.indexOf(fn)
+      listeners.splice(index, 1)
     }
   }
 }
 
-export function createStore<State>(reducer: Function, initState: State) {
+const dispatch = store.dispatch
+
+export function createStore<State>(_reducer: Function, initState: State) {
   // @ts-ignore
   state = initState
-  store.reducer = reducer
+  reducer = _reducer
   return store
 }
 
@@ -42,15 +49,7 @@ const changed = (oldData: Object, newData: Object) => {
 
 export const connect = (selector?: Function, mapDispatchToProps?: Function) => (Component: any) => {
   return (props: any) => {
-    const {setState} = useContext(AppContext)
-
     const [, update] = useState({})
-
-    const dispatch = (action: Action) => {
-      if (store.reducer) {
-        setState(store.reducer(state, action))
-      }
-    }
 
     const data = selector ? selector(state) : {state}
 

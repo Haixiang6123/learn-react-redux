@@ -2,9 +2,7 @@
 
 interface Store<State> {
   getState: () => State | undefined
-  setState: (newState: State) => void
-  reducer: undefined | Function
-  listeners: Function[]
+  dispatch: Function
   subscribe: Function
 }
 
