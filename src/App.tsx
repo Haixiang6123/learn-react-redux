@@ -1,12 +1,14 @@
 import React, {ChangeEventHandler} from 'react';
 import {connect, store, AppContext} from "./redux";
 
-const User = connect(({state}: {state: AppState}) => {
+const selector = (state: AppState) => ({user: state.user})
+
+const User = connect(selector)(({user}: {user: User}) => {
   console.log('User执行了' + Math.random());
-  return <div>User: {state.user.name}</div>
+  return <div>User: {user.name}</div>
 })
 
-const UserModify = connect(({dispatch, state}: {dispatch: Function; state: AppState}) => {
+const UserModify = connect()(({dispatch, state}: {dispatch: Function; state: AppState}) => {
   console.log('UserModify' + Math.random());
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {

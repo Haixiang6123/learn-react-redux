@@ -35,11 +35,13 @@ export const reducer = (state: AppState, {type, payload}: Action<Partial<User>>)
   }
 }
 
-export const connect = (Component: any) => {
+export const connect = (selector?: Function) => (Component: any) => {
   return (props: any) => {
     const {state, setState} = useContext(AppContext)
 
     const [, update] = useState({})
+
+    const data = selector ? selector(state) : {state}
 
     useEffect(() => {
       store.subscribe(() => {
@@ -51,6 +53,6 @@ export const connect = (Component: any) => {
       setState(reducer(state, action))
     }
 
-    return <Component {...props} dispatch={dispatch} state={state}/>
+    return <Component {...props} {...data} dispatch={dispatch}/>
   }
 }
