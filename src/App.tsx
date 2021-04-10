@@ -44,13 +44,26 @@ const UserModify = connectToUser(({user, updateUser, dispatch}: {user: User; upd
   const fetchUser = (dispatch: Function) => new Promise<void>(resolve => {
     setTimeout(() => {
       console.log('hi')
-      dispatch({type: 'updateUser', payload: { name: 'new name' }})
+      dispatch({type: 'updateUser', payload: {name: 'fetch user'}})
       resolve()
     }, 1500)
   })
 
-  const onClick = async () => {
+  const fetchUserPromise = () => new Promise<any>(resolve => {
+    setTimeout(() => {
+      console.log('hi')
+      resolve({
+        name: 'fetch user promise',
+      })
+    }, 1500)
+  })
+
+  const onClickFetchUser = async () => {
     dispatch(fetchUser)
+  }
+
+  const onClickFetchUserPromise = async () => {
+    dispatch({ type: 'updateUser', payload: fetchUserPromise() })
   }
 
   return (
@@ -59,7 +72,8 @@ const UserModify = connectToUser(({user, updateUser, dispatch}: {user: User; upd
         用户名
         <input type="text" value={user.name} onChange={onChange}/>
       </label>
-      <button onClick={onClick}>Fetch User</button>
+      <button onClick={onClickFetchUser}>Fetch User</button>
+      <button onClick={onClickFetchUserPromise}>Fetch User Promise</button>
     </div>
   )
 })

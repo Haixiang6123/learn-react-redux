@@ -38,6 +38,16 @@ dispatch = (action: Function | Object) => {
   }
 }
 
+const prevDispatch2 = dispatch
+
+dispatch = (action: { payload: any }) => {
+  if (action.payload instanceof Promise) {
+    action.payload.then((data: Object) => dispatch({...action, payload: data}))
+  } else {
+    prevDispatch2(action)
+  }
+}
+
 export function createStore<State>(_reducer: Function, initState: State) {
   // @ts-ignore
   state = initState
