@@ -1,13 +1,50 @@
-import React, {createContext, useContext, useState} from 'react';
+import React, {ChangeEventHandler, createContext, useContext, useState} from 'react';
 
-const AppContext = createContext({})
+interface AppState {
+  user: {
+    name: string;
+    age: number;
+  }
+}
+
+interface ContextValue {
+  appState: AppState,
+  setAppState: Function
+}
+
+const defaultAppState: AppState = {
+  user: {
+    name: 'Jack',
+    age: 18
+  }
+}
+
+const AppContext = createContext<ContextValue>({
+  appState: defaultAppState,
+  setAppState: () => {}
+})
 
 const User = () => {
-  return <div>User</div>
+  const contextValue = useContext(AppContext)
+  return <div>User: {contextValue.appState.user.name}</div>
 }
 
 const UserModify = () => {
-  return <div>UserModify</div>
+  const {appState, setAppState} = useContext(AppContext)
+
+  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    appState.user.name = e.target.value
+    setAppState({...appState})
+  }
+
+  return (
+    <div>
+      <label>
+        用户名
+        <input type="text" value={appState.user.name} onChange={onChange}/>
+      </label>
+    </div>
+  )
 }
 
 const FirstSon = () => {
@@ -33,9 +70,7 @@ const ThirdSon = () => {
 }
 
 const App = () => {
-  const [appState, setAppState] = useState({
-    user: {user: 'name', age: 18}
-  })
+  const [appState, setAppState] = useState<AppState>(defaultAppState)
 
   const contextValue = {appState, setAppState}
 
