@@ -17,8 +17,13 @@ interface User {
   age: number;
 }
 
+interface Group {
+  name: string;
+}
+
 interface AppState {
   user: User
+  group: Group
 }
 
 interface ContextValue {

@@ -1,9 +1,9 @@
-import React from 'react'
-import {createContext, useContext, useEffect, useState} from "react";
+import React, {createContext, useContext, useEffect, useState} from 'react'
 
-export const store: Store<{user: User}> = {
+export const store: Store<{user: User, group: Group}> = {
   state: {
-    user: {name: 'Jack', age: 18}
+    user: {name: 'Jack', age: 18},
+    group: {name: '前端组'},
   },
   setState(newState: any) {
     store.state = newState
@@ -35,6 +35,16 @@ export const reducer = (state: AppState, {type, payload}: Action<Partial<User>>)
   }
 }
 
+const changed = (oldData: Object, newData: Object) => {
+  for (let key in oldData) {
+    // @ts-ignore
+    if (oldData[key] !== newData[key]) {
+      return true
+    }
+  }
+  return false
+}
+
 export const connect = (selector?: Function) => (Component: any) => {
   return (props: any) => {
     const {state, setState} = useContext(AppContext)
@@ -44,10 +54,14 @@ export const connect = (selector?: Function) => (Component: any) => {
     const data = selector ? selector(state) : {state}
 
     useEffect(() => {
-      store.subscribe(() => {
-        update({})
+      return store.subscribe(() => {
+        const newData = selector ? selector(store.state) : {state: store.state}
+        if (changed(data, newData)) {
+          console.log('update')
+          update({})
+        }
       })
-    }, [])
+    }, [selector])
 
     const dispatch = (action: Action) => {
       setState(reducer(state, action))

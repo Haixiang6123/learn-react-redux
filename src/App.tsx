@@ -38,10 +38,17 @@ const SecondSon = () => {
   console.log('二儿子执行了' + Math.random());
   return<section>二儿子<UserModify/></section>
 }
-const ThirdSon = () => {
+const ThirdSon = connect((state: AppState) => {
+  return {group: state.group}
+})(({group}: {group: Group}) => {
   console.log('三儿子执行了' + Math.random());
-  return <section>三儿子</section>
-}
+  return (
+    <section>
+      三儿子
+      Group: {group.name}
+    </section>
+  )
+})
 
 const App = () => {
   return (
