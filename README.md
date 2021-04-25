@@ -1,2 +1,2 @@
-# learn-redux
-学习 redux
+# learn-react-redux
+学习 react-redux
